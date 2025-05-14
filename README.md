@@ -14,7 +14,6 @@ Fetch repo metadata via the GitHub REST API, build tabular features, train and e
 5. [Folder Structure](#-folder-structure)  
 6. [Development Workflow](#-development-workflow)  
 7. [Contributing](#-contributing)  
-8. [License](#-license)  
 
 ---
 
@@ -48,3 +47,82 @@ Fetch repo metadata via the GitHub REST API, build tabular features, train and e
    ```bash
    git clone git@github.com:<org>/<repo>.git StarGazers
    cd StarGazers
+   
+2. Create a Python virtual environment
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+
+3. Configure your environment
+
+   Copy ​`.env.example → .env`
+   
+   Edit `.env` to point `GITHUB_TOKEN_PATH` at your local PAT file:
+   ```bash
+   GITHUB_TOKEN_PATH=~/.config/star-predictor/token_<your-name>.txt
+  
+4. Verify your token
+   ```bash
+   python -c "import os; print(open(os.getenv('GITHUB_TOKEN_PATH')).read().startswith('ghp_'))"
+
+## 🏃‍♂️ Usage
+
+1. Data Collection
+   ```bash
+   python src/collector/collector.py \
+     --query "language:python stars:>50" \
+     --output data/raw/repos_raw.jsonl
+2. Feature Engineering
+   ```bash
+   python src/features/build_features.py \
+      --input data/raw/repos_raw.jsonl \
+      --output data/features/features.parquet
+3. Training & Evaluation
+   ```bash
+   python src/models/train.py \
+    --features data/features/features.parquet \
+    --model rf \
+    --metrics models/metrics/rf_metrics.json
+4. Run locally in Docker
+   ```bash
+   cd infra/docker
+    docker-compose up --build
+    # Service available at http://localhost:8000/rank
+
+## 📂 Folder Structure
+    ```bash
+    .
+      ├── .env.example           # example env file
+      ├── infra/
+      │   ├── ansible/           # playbooks for Dev & Prod VM provisioning
+      │   └── docker/            # Dockerfile, docker-compose.yml
+      ├── src/
+      │   ├── collector/         # scripts to fetch raw GitHub JSON
+      │   ├── features/          # ETL: JSON → feature store
+      │   └── models/            # training, evaluation, model registry
+      ├── data/                  # raw & processed data (gitignored)
+      ├── docs/                  # final report & architecture diagrams
+      ├── requirements.txt       # Python dependencies
+      └── README.md
+
+## 🔄 Development Workflow
+- Branch off `main` for each feature (e.g. `feature/collector`).
+
+- Commit early & often; push to remote.
+
+- Pull Request for review & merge.
+
+- GitHook on `main` triggers `train_and_compare.sh` → promotes Docker image if R² improves.
+
+- GitHub Actions uses `GH_PAT_CI` secret to run workflows and deploy via Ansible.
+
+
+## 🤝 Contributing
+- Fork the repo.
+
+- Create a feature branch.
+
+- Open a Pull Request describing your changes.
+
+- Ensure all checks pass (formatting, tests, training).
