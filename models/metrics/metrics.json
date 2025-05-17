@@ -1,11 +1,25 @@
 {
   "linear": {
-    "r2": 0.5887529829530911
+    "test_r2_log": 0.5466740905348196
   },
   "ridge": {
-    "r2": 0.5887529828526601
+    "test_r2_log": 0.545593333340243
   },
-  "random_forest": {
-    "r2": 0.5596297281699634
+  "rf": {
+    "test_r2_log": 0.5066705832153733
+  },
+  "xgb": {
+    "cv_r2_log": 0.6145623746616474,
+    "best_params": {
+      "max_depth": 3,
+      "n_estimators": 100
+    }
+  },
+  "lgbm": {
+    "cv_r2_log": 0.5947895176734167,
+    "best_params": {
+      "max_depth": -1,
+      "n_estimators": 100
+    }
   }
 }
