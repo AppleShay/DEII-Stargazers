@@ -1,39 +1,92 @@
 #!/usr/bin/env python3
+import os
 import json
+import requests
 from pathlib import Path
+from datetime import datetime, timedelta, timezone
+import numpy as np
 import pandas as pd
 
+# Load GitHub token for API calls
+def get_token() -> str:
+    path = Path(os.getenv("GITHUB_TOKEN_PATH", "~/.config/star-predictor/token_shay.txt")).expanduser()
+    return path.read_text().strip()
+
+HEADERS = {"Authorization": f"token {get_token()}"}
+
+# Fetch commit count in last 30 days for a repo
+def fetch_commit_count(full_name: str) -> int:
+    since = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    url = f"https://api.github.com/repos/{full_name}/commits"
+    params = {"since": since, "per_page": 100}
+    resp = requests.get(url, headers=HEADERS, params=params)
+    resp.raise_for_status()
+    return len(resp.json())
+
+# Yield each repo item from the raw JSON pages
 def load_raw_pages(raw_dir: Path):
     for path in sorted(raw_dir.glob("repos_page_*.json")):
         with open(path) as f:
             page = json.load(f)
-        yield from page["items"]
+        yield from page.get("items", [])
 
+# Build a feature row including commit velocity and topics count
 def build_feature_row(item: dict) -> dict:
-    return {
-        "full_name":       item["full_name"],
-        "stargazers_count":item["stargazers_count"],  # target
-        "forks_count":     item["forks_count"],
-        "watchers_count":  item["watchers_count"],
-        "open_issues":     item["open_issues_count"],
-        "size_kb":         item["size"],
-        "created_at":      item["created_at"],
-        "updated_at":      item["updated_at"],
-        "pushed_at":       item["pushed_at"],
-        "subscribers":     item.get("subscribers_count",0),
-        "network_count":   item.get("network_count",0),
-        "language":        item["language"] or "None",
+    full_name = item.get("full_name", "")
+    row = {
+        "full_name": full_name,
+        "stars": item.get("stargazers_count", 0),
+        "forks": item.get("forks_count", 0),
+        "issues": item.get("open_issues_count", 0),
+        "size_kb": item.get("size", 0),
+        "topics": len(item.get("topics", [])),
+        "created_at": item.get("created_at", None)
     }
+    # commit velocity
+    try:
+        commits = fetch_commit_count(full_name)
+        row["commits"] = commits
+    except:
+        row["commits"] = 0
+    return row
+
 
 def main():
     raw_dir = Path("data/raw")
     out_dir = Path("data/features")
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    rows = [build_feature_row(item) for item in load_raw_pages(raw_dir)]
-    df = pd.DataFrame(rows)
-    df.to_parquet(out_dir / "features.parquet", index=False)
-    print(f"✓ Wrote {len(df)} rows to {out_dir / 'features.parquet'}")
+    data = [build_feature_row(item) for item in load_raw_pages(raw_dir)]
+    df = pd.DataFrame(data)
+
+    # parse dates & compute age
+    df["created_at"] = pd.to_datetime(df["created_at"])
+    now = pd.Timestamp.now(tz="UTC")
+    df["age_days"] = (now - df["created_at"]).dt.days
+    df = df.drop(columns=["created_at"])
+
+    # derive rates
+    df["commits_per_day"] = df["commits"] / df["age_days"].replace(0, np.nan)
+    df["forks_per_day"] = df["forks"] / df["age_days"].replace(0, np.nan)
+
+    # log-transform skewed counts
+    for col in ["stars", "forks", "issues", "size_kb", "topics", "commits", "commits_per_day", "forks_per_day"]:
+        df["log1p_" + col] = np.log1p(df[col].fillna(0))
+
+    # one-hot language (if exists)
+    # assume original build_features added language if needed
+    if "language" in df.columns:
+        df = pd.get_dummies(df, columns=["language"], prefix="lang")
+
+    # final feature set: drop raw columns
+    raw_cols = ["stars", "forks", "issues", "size_kb", "topics", "commits",
+                "commits_per_day", "forks_per_day"]
+    df_final = df.drop(columns=raw_cols)
+
+    # write out
+    features_path = out_dir / "features.parquet"
+    df_final.to_parquet(features_path, index=False)
+    print(f"✓ Wrote {len(df_final)} rows × {df_final.shape[1]} features to {features_path}")
 
 if __name__ == "__main__":
     main()
