@@ -91,20 +91,37 @@ Fetch repo metadata via the GitHub REST API, build tabular features, train and e
     # Service available at http://localhost:8000/rank
 
 ## 📂 Folder Structure
-    ```bash
-    .
-      ├── .env.example           # example env file
-      ├── infra/
-      │   ├── ansible/           # playbooks for Dev & Prod VM provisioning
-      │   └── docker/            # Dockerfile, docker-compose.yml
-      ├── src/
-      │   ├── collector/         # scripts to fetch raw GitHub JSON
-      │   ├── features/          # ETL: JSON → feature store
-      │   └── models/            # training, evaluation, model registry
-      ├── data/                  # raw & processed data (gitignored)
-      ├── docs/                  # final report & architecture diagrams
-      ├── requirements.txt       # Python dependencies
-      └── README.md
+        StarGazers/
+        │
+        ├── README.md
+        ├── .gitignore
+        ├── .env.example
+        ├── requirements.txt         # (optional, if created)
+        │
+        ├── data/
+        │   ├── raw/                 # 10 JSON files (repos_page_01.json → repos_page_10.json)
+        │   └── features/
+        │       └── features.parquet
+        │
+        ├── docs/                    # Documentation folder (if used)
+        │
+        ├── infra/                   # Infra-related code (e.g., VM, docker, setup) (if used)
+        │
+        ├── models/
+        │   ├── artifacts/           # Trained model files (if saved)
+        │   └── metrics/
+        │       └── metrics.json     # Performance metrics of all models
+        │
+        ├── src/
+        │   ├── collector/
+        │   │   └── collector.py     # Script to collect data from GitHub API
+        │   │
+        │   ├── features/
+        │   │   └── build_features.py # Extracts and transforms features, saves parquet
+        │   │
+        │   └── models/
+        │       └── train.py         # Trains models and saves metrics
+
 
 ## 🔄 Development Workflow
 - Branch off `main` for each feature (e.g. `feature/collector`).
