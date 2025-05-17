@@ -21,7 +21,7 @@ Fetch repo metadata via the GitHub REST API, build tabular features, train and e
 
 - **Collector**: paginated GitHub Search + commit-velocity calls  
 - **ETL**: flatten JSON → Parquet feature store  
-- **Modeling**: OLS, Ridge, RandomForest, XGBoost, LightGBM with CV  
+- **Modeling**: OLS, Ridge, RandomForest, XGBoost, LightGBM (GridSearchCV) with log-transform and feature engineering  
 - **Serving**: FastAPI endpoint (`/rank`) in Docker  
 - **CI/CD**: GitHub Actions + GitHook “train-if-better” + Docker image promotion  
 - **Provisioning**: Ansible playbooks for Dev & Prod VMs  
