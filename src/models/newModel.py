@@ -17,14 +17,16 @@ print(df.columns.tolist())
 
 # === 2. Select features ===
 numerical_features = [
-    # "log1p_forks", 
+    "log1p_forks", 
     "log1p_issues", "log1p_size_kb", "age_days", "activity_ratio",
     # "fork_star_ratio",
-    "issues_per_size", "avg_growth_rate", "log1p_commits",
+    "issues_per_size", 
+    # "avg_growth_rate", 
+    "log1p_commits",
     "log1p_commits_per_day", 
     # "log1p_forks_per_day", 
     # "log1p_watchers",
-    # "log1p_watchers_per_fork",
+    "log1p_watchers_per_fork",
      "log1p_days_since_update", "creation_year", "creation_month"
 ]
 
