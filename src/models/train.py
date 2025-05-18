@@ -12,6 +12,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def load_features(path: Path) -> pd.DataFrame:
@@ -41,9 +43,20 @@ def main():
     # Load features
     df = load_features(features_path)
 
+    corr_matrix = df.corr(numeric_only=True)
+    plt.figure(figsize=(14, 12))
+    sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="coolwarm", square=True)
+    plt.title("Correlation Heatmap of Features", fontsize=16)
+    plt.tight_layout()
+    output_path = "src/features/feature_correlation_heatmap.png"
+    plt.savefig(output_path)
+    plt.close()
+
+    output_path
+
     # Target: log1p_stars
     y = df['log1p_stars']
-    X = df.drop(columns=['full_name', 'log1p_stars'])
+    X = df.drop(columns=['full_name', 'log1p_stars', 'log1p_watchers','log1p_forks'])
 
     # Train/test split
     X_train, X_test, y_train, y_test = train_test_split(
@@ -62,7 +75,11 @@ def main():
     # Simplified grids for tuning
     param_grids = {
         'xgb': {'n_estimators': [100], 'max_depth': [3]},
-        'lgbm': {'n_estimators': [100], 'max_depth': [-1]}
+        'lgbm': {
+            'n_estimators': [100, 300],
+            'max_depth': [3, 6, -1],
+            'learning_rate': [0.01, 0.1]
+        }
     }
 
     metrics = {}

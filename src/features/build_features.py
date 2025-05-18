@@ -40,8 +40,17 @@ def build_feature_row(item: dict) -> dict:
         "issues": item.get("open_issues_count", 0),
         "size_kb": item.get("size", 0),
         "topics": len(item.get("topics", [])),
-        "created_at": item.get("created_at", None)
+        "created_at": item.get("created_at", None),
+        "watchers": item.get("watchers_count", 0),
+        "has_homepage": int(bool(item.get("homepage"))),
+        "updated_at": item.get("updated_at", None),
     }
+
+    #One more feaature
+    forks = row["forks"]
+    watchers = row["watchers"]
+    row["watchers_per_fork"] = watchers / forks if forks > 0 else 0
+
     # commit velocity
     try:
         commits = fetch_commit_count(full_name)
@@ -49,6 +58,7 @@ def build_feature_row(item: dict) -> dict:
     except:
         row["commits"] = 0
     return row
+
 
 
 def main():
@@ -61,16 +71,22 @@ def main():
 
     # parse dates & compute age
     df["created_at"] = pd.to_datetime(df["created_at"])
+    df["updated_at"] = pd.to_datetime(df["updated_at"])
     now = pd.Timestamp.now(tz="UTC")
+
+    # project age and time from last update
     df["age_days"] = (now - df["created_at"]).dt.days
-    df = df.drop(columns=["created_at"])
+    df["days_since_update"] = (now - df["updated_at"]).dt.days
+
+    # dropping stuff
+    df = df.drop(columns=["created_at", "updated_at"])
 
     # derive rates
     df["commits_per_day"] = df["commits"] / df["age_days"].replace(0, np.nan)
     df["forks_per_day"] = df["forks"] / df["age_days"].replace(0, np.nan)
 
     # log-transform skewed counts
-    for col in ["stars", "forks", "issues", "size_kb", "topics", "commits", "commits_per_day", "forks_per_day"]:
+    for col in ["stars", "forks", "issues", "size_kb", "topics", "commits", "commits_per_day", "forks_per_day", "watchers", "watchers_per_fork", "days_since_update"]:
         df["log1p_" + col] = np.log1p(df[col].fillna(0))
 
     # one-hot language (if exists)
@@ -80,7 +96,7 @@ def main():
 
     # final feature set: drop raw columns
     raw_cols = ["stars", "forks", "issues", "size_kb", "topics", "commits",
-                "commits_per_day", "forks_per_day"]
+                "commits_per_day", "forks_per_day", "watchers", "watchers_per_fork", "days_since_update"]
     df_final = df.drop(columns=raw_cols)
 
     # write out
