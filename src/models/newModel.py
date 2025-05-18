@@ -19,7 +19,8 @@ print(df.columns.tolist())
 numerical_features = [
     # "log1p_forks", 
     "log1p_issues", "log1p_size_kb", "age_days", "activity_ratio",
-    "fork_star_ratio", "issues_per_size", "avg_growth_rate", "log1p_commits",
+    # "fork_star_ratio",
+    "issues_per_size", "avg_growth_rate", "log1p_commits",
     "log1p_commits_per_day", 
     # "log1p_forks_per_day", 
     # "log1p_watchers",
