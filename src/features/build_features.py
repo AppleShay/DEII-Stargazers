@@ -9,7 +9,7 @@ import pandas as pd
 
 # Load GitHub token for API calls
 def get_token() -> str:
-    path = Path(os.getenv("GITHUB_TOKEN_PATH", "~/.config/star-predictor/token_feruz.txt")).expanduser()
+    path = Path(os.getenv("GITHUB_TOKEN_PATH", "~/.config/star-predictor/token_shay.txt")).expanduser()
     return path.read_text().strip()
 
 HEADERS = {"Authorization": f"token {get_token()}"}
@@ -65,12 +65,9 @@ def main():
     raw_dir = Path("data/raw")
     out_dir = Path("data/features")
     out_dir.mkdir(parents=True, exist_ok=True)
-    print("Looking for files in:", raw_dir.resolve())
-    print("Found files:", list(raw_dir.glob("repos_page_*.json")))
 
     data = [build_feature_row(item) for item in load_raw_pages(raw_dir)]
     df = pd.DataFrame(data)
-    print("Columns available:", df.columns.tolist())
 
     # parse dates & compute age
     df["created_at"] = pd.to_datetime(df["created_at"])
@@ -80,17 +77,7 @@ def main():
     # project age and time from last update
     df["age_days"] = (now - df["created_at"]).dt.days
     df["days_since_update"] = (now - df["updated_at"]).dt.days
-    
-    # exract more features
-    df["activity_ratio"] = df["days_since_update"] / (df["age_days"] + 1)
-    df["fork_star_ratio"] = df["forks"] / (df["stars"] + 1)
-    df["issues_per_size"] = df["issues"] / (df["size_kb"] + 1)
-    df["avg_growth_rate"] = df["stars"] / (df["age_days"] + 1)
 
-    df["creation_year"] = df["created_at"].dt.year
-    df["creation_month"] = df["created_at"].dt.month
-
-   
     # dropping stuff
     df = df.drop(columns=["created_at", "updated_at"])
 
@@ -113,7 +100,7 @@ def main():
     df_final = df.drop(columns=raw_cols)
 
     # write out
-    features_path = out_dir / "features2.parquet"
+    features_path = out_dir / "features.parquet"
     df_final.to_parquet(features_path, index=False)
     print(f"✓ Wrote {len(df_final)} rows × {df_final.shape[1]} features to {features_path}")
 
