@@ -34,7 +34,7 @@ def predict():
         for i in range(5):
             repos[i]["predicted_stars"] = int(predictions[i])
 
-        # 排序：按 predicted_stars 降序排列
+        # sort
         repos_sorted = sorted(repos, key=lambda x: x["predicted_stars"], reverse=True)
 
         return render_template('result.html', results=repos_sorted)
