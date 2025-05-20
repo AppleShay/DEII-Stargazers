@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction Result</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        h2 {
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        table {
+            margin: auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #999;
+            padding: 8px;
+            min-width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <h2>GitHub Repo Star Predictor</h2>
+    <table>
+        <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Predicted Stars</th>
+        </tr>
+        {% for repo in results %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ repo.name }}</td>
+            <td>{{ repo.predicted_stars }}</td>
+        </tr>
+        {% endfor %}
+    </table><br>
+    <a href="/">Try Again</a>
+</body>
+</html>

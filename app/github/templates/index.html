@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHub Repo Star Predictor</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        h2 {
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        table {
+            margin: auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #999;
+            padding: 8px;
+            min-width: 100px;
+        }
+
+        input {
+            width: 100%;
+        }
+
+        .predict-button {
+            background-color: black;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto 0;
+        }
+
+        .predict-button:hover {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h2>Welcome to GitHub Repo Star Predictor!</h2>
+    <form>
+        <table>
+            <tr>
+                <th>Github</th>
+                <th>Repository 1</th>
+                <th>Repository 2</th>
+                <th>Repository 3</th>
+                <th>Repository 4</th>
+                <th>Repository 5</th>
+            </tr>
+            {% for field in ['Name', 'Issues', 'Size', 'Topics', 'Created_at', 'Updated_at'] %}
+            <tr>
+                <td>{{ field }}</td>
+                {% for i in range(1, 6) %}
+                <td><input name="{{ field.lower() }}{{ i }}"></td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table><br>
+
+        <input type="submit" value="Predict Star Count" class="predict-button">
+    </form>
+</body>
+</html>
+
