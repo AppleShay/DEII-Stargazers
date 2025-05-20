@@ -19,7 +19,6 @@ print(df.columns.tolist())
 numerical_features = [
     "log1p_forks", 
     "log1p_issues", "log1p_size_kb", "age_days", "activity_ratio",
-    # "fork_star_ratio",
     "issues_per_size", 
     # "avg_growth_rate", 
     "log1p_commits",
@@ -31,7 +30,7 @@ numerical_features = [
 ]
 
 X = df[numerical_features]
-y = df["log1p_stars"]  # already log-transformed in your feature script
+y = df["log1p_stars"]  # already log-transformed in the feature script
 
 # === 3. Split data ===
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -52,7 +51,7 @@ models = {
 }
 
 # === 6. Train and evaluate ===
-print("\n📊 Model Evaluation")
+print("\n Model Evaluation")
 print("-" * 50)
 results = {}
 
@@ -82,5 +81,5 @@ best_model = models[best_model_name]
 with open("best_model.pkl", "wb") as f:
     pickle.dump(best_model, f)
 
-print(f"\n🏆 Best model: {best_model_name} (R² = {results[best_model_name]['r2']:.4f})")
-print("✅ Saved to best_model.pkl")
+print(f"\n Best model: {best_model_name} (R² = {results[best_model_name]['r2']:.4f})")
+print(" Saved to best_model.pkl")
