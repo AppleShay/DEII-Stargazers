@@ -1,0 +1,109 @@
+\documentclass[12pt,a4paper]{article}
+
+
+%----------------------------------------------------------------------
+% PACKAGES AND BASIC SETUP
+%----------------------------------------------------------------------
+\usepackage[utf8]{inputenc}        % For UTF-8 encoding
+\usepackage[T1]{fontenc}           % For proper accented characters
+\usepackage{lmodern}               % Latin Modern font
+\usepackage{geometry}              % Adjust page margins
+\geometry{margin=1in}             % 1-inch margins all around
+\usepackage[backend=bibtex]{biblatex}  
+\addbibresource{sample.bib}  
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{setspace}              % For line spacing if needed
+%\onehalfspacing                    % Uncomment for 1.5 spacing
+\usepackage{multirow} % Add this to the preamble
+\usepackage{caption}
+
+\usepackage{graphicx}              % For including images
+\usepackage{hyperref}              % Clickable links in PDF
+\usepackage{amsmath,amssymb}       % Math symbols if needed
+\usepackage{parskip}               % Blank line between paragraphs
+\usepackage{float}
+\usepackage{xcolor}
+% If you want MLA or APA style references, you can use biblatex or natbib
+% e.g.:
+%----------------------------------------------------------------------
+% TITLE PAGE INFO
+%----------------------------------------------------------------------
+\title{
+
+    \rule{\textwidth}{4pt}\\[10pt]
+    \huge \textbf{Data Engineering Project Report}
+    \rule{\textwidth}{1pt}\\[15pt]
+    
+    \huge \color{darkgray}\textbf{StarGazers Predictor: GitHub Stars Prediction Pipeline}\\[15pt]
+    
+    \large \textbf{Department of Information Technology}\\[15pt]
+    \large \textbf{By Group 2}\\[5pt]
+
+
+}
+\author{
+    Shaheryar\\
+    \texttt{shaheryar.4822@student.uu.se}
+    \and
+    Rick\\
+    \texttt{@student.uu.se}
+    \and
+    Feruz\\
+    \texttt{@student.uu.se}
+    \and
+    Lu\\
+    \texttt{@student.uu.se}
+    \and
+    Linjia\\
+    \texttt{@student.uu.se}
+    }
+\date{\today} % Updates Daily
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+With the increasing reliance on open source platforms, popularity metrics such as GitHub stars provide a quantifiable proxy for measuring community interest. This project aims to build a prediction pipeline that forecasts the star count of GitHub repositories based on metadata features extracted via the GitHub REST API.
+
+\section{Related Work}
+Several studies have analyzed software repository popularity using statistical and machine learning models. Prior works often focused on time-series forecasting, but this project explores static metadata-based regression approaches. We compare methods such as linear regression, ensemble models, and gradient boosting, aligning with best practices in open-source project analytics.
+
+\section{System Architecture}
+Our system is structured as a modular pipeline:
+\begin{itemize}
+    \item \textbf{Data Collection:} GitHub API used to collect metadata for 1000 repositories with $>$50 stars.
+    \item \textbf{Feature Engineering:} Extracted and computed features like \textit{commits, forks, watchers, project age, update delay, etc.}
+    \item \textbf{Model Training:} Regression models trained using Scikit-learn pipelines with standard preprocessing.
+    \item \textbf{Serving:} A FastAPI app exposes the best model via REST endpoint, deployed with Docker and CI/CD via GitHooks and Ansible on separate Dev/Prod VMs.
+\end{itemize}
+
+\section{Results}
+\subsection{Scalability Analysis}
+While our dataset is limited to 1000 repositories (due to GitHub API limits), our architecture supports horizontal scaling. Data collection can be parallelized, the FastAPI service is Dockerized for deployment via Kubernetes or Docker Swarm, and models are trained using scikit-learn pipelines compatible with distributed training if needed. The system is built with modularity and extensibility in mind, allowing future scale-up in both data and user requests.
+
+\subsection{Model Comparison and Accuracy}
+We evaluated five models:
+\begin{itemize}[noitemsep]
+    \item Linear Regression: R² = 0.54
+    \item Ridge Regression: R² = 0.54
+    \item Random Forest: R² = 0.50
+    \item XGBoost: R² = 0.61
+    \item LightGBM: R² = 0.59
+\end{itemize}
+
+The best performance was achieved using \textbf{XGBoost}, and it was exported as a `.pkl` artifact used in the deployed app. Predictions on real-world repositories showed close alignment with actual star counts, validating the generalization of the model.
+
+\section{Conclusion}
+We demonstrated an end-to-end predictive pipeline for estimating GitHub stars based on repository metadata. The system is modular, reproducible, and production-ready. Future extensions may include time-series forecasting or community activity trends to improve accuracy further.
+
+
+\end{document}
