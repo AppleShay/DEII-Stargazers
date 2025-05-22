@@ -1,0 +1,25 @@
+name: Docker CI for Star Predictor
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build Docker image
+      run: docker build -t star-predictor .
+
+    - name: Run container (test only)
+      run: docker run -d -p 5100:5100 star-predictor
+
+    - name: Check container is running
+      run: docker ps | grep star-predictor
