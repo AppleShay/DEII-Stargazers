@@ -48,25 +48,38 @@
 </head>
 <body>
     <h2>Welcome to GitHub Repo Star Predictor!</h2>
-    <form>
+    <form method="POST" action="/predict">
         <table>
             <tr>
-                <th>Github</th>
-                <th>Repository 1</th>
-                <th>Repository 2</th>
-                <th>Repository 3</th>
-                <th>Repository 4</th>
-                <th>Repository 5</th>
-            </tr>
-            {% for field in ['Name', 'Issues', 'Size', 'Topics', 'Created_at', 'Updated_at'] %}
-            <tr>
-                <td>{{ field }}</td>
+                <th>Feature</th>
                 {% for i in range(1, 6) %}
-                <td><input name="{{ field.lower() }}{{ i }}"></td>
+                    <th>Repository {{ i }}</th>
+                {% endfor %}
+            </tr>
+
+            {% set fields = [
+                ('issues', 'Issues'),
+                ('size_kb', 'Size (KB)'),
+                ('topics', 'Topics'),
+                ('commits', 'Commits'),
+                ('commits_per_day', 'Commits/day'),
+                ('forks_per_day', 'Forks/day'),
+                ('days_since_update', 'Days since update'),
+                ('age_days', 'Repo age (days)'),
+                ('has_homepage', 'Has homepage? (0 or 1)'),
+                ('recently_updated', 'Recently updated? (0 or 1)')
+            ] %}
+
+            {% for field, label in fields %}
+            <tr>
+                <td><strong>{{ label }}</strong></td>
+                {% for i in range(5) %}
+                    <td><input type="number" name="{{ field }}{{ i }}" step="any"></td>
                 {% endfor %}
             </tr>
             {% endfor %}
-        </table><br>
+        </table>
+        <br>
 
         <input type="submit" value="Predict Star Count" class="predict-button">
     </form>

@@ -19,13 +19,25 @@ def predict():
 
         for i in range(1, 6):
             name = request.form.get(f'name{i}', f'Repo {i}')
-            issues = float(request.form.get(f'issues{i}', 0))
-            size = float(request.form.get(f'size{i}', 0))
-            topics = float(request.form.get(f'topics{i}', 0))
-            created_at = float(request.form.get(f'created_at{i}', 0))
-            updated_at = float(request.form.get(f'updated_at{i}', 0))
+            def parse_float(value):
+                try:
+                    return float(value)
+                except:
+                    return 0.0
 
-            features.append([issues, size, topics, created_at, updated_at])
+            row = [
+            parse_float(request.form.get(f"issues{i}")),
+            parse_float(request.form.get(f"size_kb{i}")),
+            parse_float(request.form.get(f"topics{i}")),
+            parse_float(request.form.get(f"commits{i}")),
+            parse_float(request.form.get(f"commits_per_day{i}")),
+            parse_float(request.form.get(f"forks_per_day{i}")),
+            parse_float(request.form.get(f"days_since_update{i}")),
+            parse_float(request.form.get(f"age_days{i}")),
+            parse_float(request.form.get(f"has_homepage{i}")),
+            parse_float(request.form.get(f"recently_updated{i}")),
+            ]
+            features.append(row)
             repos.append({"name": name})
 
         X = np.array(features)
