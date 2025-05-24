@@ -16,10 +16,12 @@ jobs:
       uses: docker/setup-buildx-action@v2
 
     - name: Build Docker image
-      run: docker build -t star-predictor .
+      run: docker build -t star-predictor ./app/github
 
     - name: Run container (test only)
       run: docker run -d -p 5100:5100 star-predictor
 
-    - name: Check container is running
-      run: docker ps | grep star-predictor
+    - name: Test health of app
+      run: |
+        sleep 5
+        curl --fail http://localhost:5100 || exit 1
