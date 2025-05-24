@@ -9,19 +9,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: 📥 Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Docker Buildx
+    - name: 🛠️ Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Build Docker image
+    - name: 🧱 Build Docker image
       run: docker build -t star-predictor ./app/github
 
-    - name: Run container (test only)
-      run: docker run -d -p 5100:5100 star-predictor
+    - name: 🚀 Run container
+      run: docker run -d --name star-app -p 5100:5100 star-predictor
 
-    - name: Test health of app
+    - name: ✅ Health check (wait for container to start)
       run: |
-        sleep 5
-        curl --fail http://localhost:5100 || exit 1
+        for i in {1..10}; do
+          echo "Checking if app is up (try $i)..."
+          if curl -s http://localhost:5100 | grep -q "GitHub Repo Star Predictor"; then
+            echo "App is healthy ✅"
+            exit 0
+          fi
+          sleep 3
+        done
+        echo "❌ App failed to start in time"
+        docker logs star-app
+        exit 1
