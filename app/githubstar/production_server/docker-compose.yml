@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./production_server
+    container_name: flask-app
+    ports:
+      - "5100:5100"
+    volumes:
+      - ./production_server:/app
+    depends_on:
+      - rabbitmq
+
+  worker:
+    build: ./production_server
+    container_name: celery-worker
+    command: celery -A workerA worker --loglevel=info
+    volumes:
+      - ./production_server:/app
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+

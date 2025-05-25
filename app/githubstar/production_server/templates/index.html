@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHub Repo Star Predictor</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        h2 {
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        table {
+            margin: auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #999;
+            padding: 8px;
+            min-width: 100px;
+        }
+
+        input {
+            width: 100%;
+        }
+
+        .predict-button {
+            background-color: black;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto 0;
+        }
+
+        .predict-button:hover {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h2>Welcome to GitHub Repo Star Predictor!</h2>
+    <form method="POST" action="/predict">
+        <table>
+            <tr>
+                <th>Feature</th>
+                {% for i in range(1, 6) %}
+                    <th>Repository {{ i }}</th>
+                {% endfor %}
+            </tr>
+
+            {% set fields = [
+                ('issues', 'Issues'),
+                ('size_kb', 'Size (KB)'),
+                ('topics', 'Topics'),
+                ('commits', 'Commits'),
+                ('commits_per_day', 'Commits/day'),
+                ('forks_per_day', 'Forks/day'),
+                ('days_since_update', 'Days since update'),
+                ('age_days', 'Repo age (days)'),
+                ('has_homepage', 'Has homepage? (0 or 1)'),
+                ('recently_updated', 'Recently updated? (0 or 1)')
+            ] %}
+
+            {% for field, label in fields %}
+            <tr>
+                <td><strong>{{ label }}</strong></td>
+                {% for i in range(5) %}
+                    <td><input type="number" name="{{ field }}{{ i }}" step="any"></td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+
+        <input type="submit" value="Predict Star Count" class="predict-button">
+    </form>
+</body>
+</html>
+

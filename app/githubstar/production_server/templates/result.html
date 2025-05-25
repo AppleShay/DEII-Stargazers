@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction Result</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        h2 {
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        table {
+            margin: auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #999;
+            padding: 8px;
+            min-width: 120px;
+        }
+
+        .action-button {
+            background-color: black;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-block;
+            margin: 30px auto 0;
+            text-decoration: none;
+        }
+
+        .action-button:hover {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h2>GitHub Repo Star Predictor</h2>
+    <table>
+        <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Predicted Stars</th>
+        </tr>
+        {% for repo in results %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ repo.name }}</td>
+            <td>{{ repo.predicted_stars }}</td>
+        </tr>
+        {% endfor %}
+    </table><br>
+
+    <!-- Try Again button returns to the input form -->
+    <a href="/" class="action-button">Try Again</a>
+</body>
+</html>
+
