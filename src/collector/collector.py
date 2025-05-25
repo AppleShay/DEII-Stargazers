@@ -4,18 +4,20 @@ import requests
 import json
 from pathlib import Path
 
+
 def get_token() -> str:
     """
     Reads your GitHub PAT from the path configured in GITHUB_TOKEN_PATH
     (defaults to ~/.config/star-predictor/token_shay.txt).
     """
-    token_path = Path(os.getenv(
-        "GITHUB_TOKEN_PATH",
-        "~/.config/star-predictor/token_shay.txt"
-    )).expanduser()
+    token_path = Path(
+        os.getenv("GITHUB_TOKEN_PATH", "~/.config/star-predictor/token_shay.txt")
+    ).expanduser()
     return token_path.read_text().strip()
 
+
 HEADERS = {"Authorization": f"token {get_token()}"}
+
 
 def fetch_page(query: str, page: int = 1, per_page: int = 100) -> dict:
     """
@@ -27,11 +29,12 @@ def fetch_page(query: str, page: int = 1, per_page: int = 100) -> dict:
         "sort": "stars",
         "order": "desc",
         "per_page": per_page,
-        "page": page
+        "page": page,
     }
     resp = requests.get(url, headers=HEADERS, params=params)
     resp.raise_for_status()
     return resp.json()
+
 
 def main():
     # TODO: parameterize query via argparse later
@@ -46,6 +49,7 @@ def main():
         with open(filepath, "w") as f:
             json.dump(data, f, indent=2)
         print(f"✓ Saved page {page} → {filepath}")
+
 
 if __name__ == "__main__":
     main()

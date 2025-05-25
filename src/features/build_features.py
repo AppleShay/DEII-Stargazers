@@ -7,12 +7,17 @@ from datetime import datetime, timedelta, timezone
 import numpy as np
 import pandas as pd
 
+
 # Load GitHub token for API calls
 def get_token() -> str:
-    path = Path(os.getenv("GITHUB_TOKEN_PATH", "~/.config/star-predictor/token_shay.txt")).expanduser()
+    path = Path(
+        os.getenv("GITHUB_TOKEN_PATH", "~/.config/star-predictor/token_shay.txt")
+    ).expanduser()
     return path.read_text().strip()
 
+
 HEADERS = {"Authorization": f"token {get_token()}"}
+
 
 # Fetch commit count in last 30 days for a repo
 def fetch_commit_count(full_name: str) -> int:
@@ -23,12 +28,14 @@ def fetch_commit_count(full_name: str) -> int:
     resp.raise_for_status()
     return len(resp.json())
 
+
 # Yield each repo item from the raw JSON pages
 def load_raw_pages(raw_dir: Path):
     for path in sorted(raw_dir.glob("repos_page_*.json")):
         with open(path) as f:
             page = json.load(f)
         yield from page.get("items", [])
+
 
 # Build a feature row including commit velocity and topics count
 def build_feature_row(item: dict) -> dict:
@@ -46,7 +53,7 @@ def build_feature_row(item: dict) -> dict:
         "updated_at": item.get("updated_at", None),
     }
 
-    #One more feaature
+    # One more feaature
     forks = row["forks"]
     watchers = row["watchers"]
     row["watchers_per_fork"] = watchers / forks if forks > 0 else 0
@@ -55,10 +62,10 @@ def build_feature_row(item: dict) -> dict:
     try:
         commits = fetch_commit_count(full_name)
         row["commits"] = commits
-    except:
+    except Exception as e:
         row["commits"] = 0
+        print(f"Error: {e}")
     return row
-
 
 
 def main():
@@ -86,7 +93,19 @@ def main():
     df["forks_per_day"] = df["forks"] / df["age_days"].replace(0, np.nan)
 
     # log-transform skewed counts
-    for col in ["stars", "forks", "issues", "size_kb", "topics", "commits", "commits_per_day", "forks_per_day", "watchers", "watchers_per_fork", "days_since_update"]:
+    for col in [
+        "stars",
+        "forks",
+        "issues",
+        "size_kb",
+        "topics",
+        "commits",
+        "commits_per_day",
+        "forks_per_day",
+        "watchers",
+        "watchers_per_fork",
+        "days_since_update",
+    ]:
         df["log1p_" + col] = np.log1p(df[col].fillna(0))
 
     # one-hot language (if exists)
@@ -95,14 +114,28 @@ def main():
         df = pd.get_dummies(df, columns=["language"], prefix="lang")
 
     # final feature set: drop raw columns
-    raw_cols = ["stars", "forks", "issues", "size_kb", "topics", "commits",
-                "commits_per_day", "forks_per_day", "watchers", "watchers_per_fork", "days_since_update"]
+    raw_cols = [
+        "stars",
+        "forks",
+        "issues",
+        "size_kb",
+        "topics",
+        "commits",
+        "commits_per_day",
+        "forks_per_day",
+        "watchers",
+        "watchers_per_fork",
+        "days_since_update",
+    ]
     df_final = df.drop(columns=raw_cols)
 
     # write out
     features_path = out_dir / "features.parquet"
     df_final.to_parquet(features_path, index=False)
-    print(f"✓ Wrote {len(df_final)} rows × {df_final.shape[1]} features to {features_path}")
+    print(
+        f"✓ Wrote {len(df_final)} rows × {df_final.shape[1]} features to {features_path}"
+    )
+
 
 if __name__ == "__main__":
     main()

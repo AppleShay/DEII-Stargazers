@@ -7,7 +7,6 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
-from sklearn.compose import ColumnTransformer
 import pickle
 
 # === 1. Load data ===
@@ -17,37 +16,59 @@ print(df.columns.tolist())
 
 # === 2. Select features ===
 numerical_features = [
-    "log1p_forks", 
-    "log1p_issues", "log1p_size_kb", "age_days", "activity_ratio",
-    "issues_per_size", 
-    # "avg_growth_rate", 
+    "log1p_forks",
+    "log1p_issues",
+    "log1p_size_kb",
+    "age_days",
+    "activity_ratio",
+    "issues_per_size",
+    # "avg_growth_rate",
     "log1p_commits",
-    "log1p_commits_per_day", 
-    # "log1p_forks_per_day", 
+    "log1p_commits_per_day",
+    # "log1p_forks_per_day",
     # "log1p_watchers",
     "log1p_watchers_per_fork",
-     "log1p_days_since_update", "creation_year", "creation_month"
+    "log1p_days_since_update",
+    "creation_year",
+    "creation_month",
 ]
 
 X = df[numerical_features]
 y = df["log1p_stars"]  # already log-transformed in the feature script
 
 # === 3. Split data ===
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
 # === 4. Preprocessing pipeline ===
-preprocessor = Pipeline(steps=[
-    ("imputer", SimpleImputer(strategy="median")),
-    ("scaler", StandardScaler())
-])
+preprocessor = Pipeline(
+    steps=[("imputer", SimpleImputer(strategy="median")), ("scaler", StandardScaler())]
+)
 
 # === 5. Define models ===
 models = {
-    "Linear Regression": Pipeline([("preprocessor", preprocessor), ("model", LinearRegression())]),
-    "Ridge Regression": Pipeline([("preprocessor", preprocessor), ("model", Ridge(alpha=1.0))]),
-    "Lasso Regression": Pipeline([("preprocessor", preprocessor), ("model", Lasso(alpha=0.1))]),
-    "Random Forest": Pipeline([("preprocessor", preprocessor), ("model", RandomForestRegressor(n_estimators=100, random_state=42))]),
-    "Gradient Boosting": Pipeline([("preprocessor", preprocessor), ("model", GradientBoostingRegressor(n_estimators=100, random_state=42))])
+    "Linear Regression": Pipeline(
+        [("preprocessor", preprocessor), ("model", LinearRegression())]
+    ),
+    "Ridge Regression": Pipeline(
+        [("preprocessor", preprocessor), ("model", Ridge(alpha=1.0))]
+    ),
+    "Lasso Regression": Pipeline(
+        [("preprocessor", preprocessor), ("model", Lasso(alpha=0.1))]
+    ),
+    "Random Forest": Pipeline(
+        [
+            ("preprocessor", preprocessor),
+            ("model", RandomForestRegressor(n_estimators=100, random_state=42)),
+        ]
+    ),
+    "Gradient Boosting": Pipeline(
+        [
+            ("preprocessor", preprocessor),
+            ("model", GradientBoostingRegressor(n_estimators=100, random_state=42)),
+        ]
+    ),
 }
 
 # === 6. Train and evaluate ===
@@ -70,7 +91,7 @@ for name, model in models.items():
     print(f"  R² Score (log space): {r2:.4f}")
     print(f"  RMSE (original scale): {rmse:.4f}")
 
-    cv = cross_val_score(model, X, y, cv=5, scoring='r2')
+    cv = cross_val_score(model, X, y, cv=5, scoring="r2")
     print(f"  5-Fold CV R²: {cv.mean():.4f} ± {cv.std():.4f}")
     print("-" * 30)
 
