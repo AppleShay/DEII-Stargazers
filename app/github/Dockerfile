@@ -13,7 +13,7 @@ COPY templates/ templates/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose port used by Flask
-EXPOSE 5100
+EXPOSE 5000
 
 # Run the Flask app
 CMD ["python", "app.py"]
