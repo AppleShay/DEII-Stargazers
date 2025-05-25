@@ -62,8 +62,9 @@ def build_feature_row(item: dict) -> dict:
     try:
         commits = fetch_commit_count(full_name)
         row["commits"] = commits
-    except:
+    except Exception as e:
         row["commits"] = 0
+        print(f"Error: {e}")
     return row
 
 
