@@ -15,8 +15,6 @@ floating_ip_pool_name = None
 floating_ip = None
 image_name = "Ubuntu 22.04 - 2024.01.15"
 
-identifier = random.randint(1000,9999)
-
 loader = loading.get_plugin_loader('password')
 
 auth = loader.load_from_options(auth_url=env['OS_AUTH_URL'],
@@ -43,11 +41,11 @@ else:
 
 #print("Path at terminal when executing this file")
 #print(os.getcwd() + "\n")
-cfg_file_path =  os.getcwd()+'/prod-cloud-cfg.txt'
+cfg_file_path =  os.getcwd()+'/dev-cloud-cfg.txt'
 if os.path.isfile(cfg_file_path):
     userdata_prod = open(cfg_file_path)
 else:
-    sys.exit("prod-cloud-cfg.txt is not in current working directory")
+    sys.exit("dev-cloud-cfg.txt is not in current working directory")
 
 cfg_file_path =  os.getcwd()+'/dev-cloud-cfg.txt'
 if os.path.isfile(cfg_file_path):
@@ -58,38 +56,39 @@ else:
 secgroups = ['default']
 
 print ("Creating instances ... ")
-instance_prod = nova.servers.create(name="G2prod_server_"+str(identifier), image=image, flavor=flavor, key_name='Group2Project',userdata=userdata_prod, nics=nics,security_groups=secgroups)
-instance_dev = nova.servers.create(name="G2dev_server_"+str(identifier), image=image, flavor=flavor, key_name='Group2Project',userdata=userdata_dev, nics=nics,security_groups=secgroups)
-inst_status_prod = instance_prod.status
-inst_status_dev = instance_dev.status
+instance_dev2 = nova.servers.create(name="G2dev_server_med2", image=image, flavor=flavor, key_name='Group2Project',userdata=userdata_prod, nics=nics,security_groups=secgroups)
+instance_dev3 = nova.servers.create(name="G2dev_server_med3", image=image, flavor=flavor, key_name='Group2Project',userdata=userdata_dev, nics=nics,security_groups=secgroups)
+inst_status_dev2 = instance_dev2.status
+inst_status_dev3 = instance_dev3.status
 
 print ("waiting for 10 seconds.. ")
 time.sleep(10)
 
-while inst_status_prod == 'BUILD' or inst_status_dev == 'BUILD':
-    print ("Instance: "+instance_prod.name+" is in "+inst_status_prod+" state, sleeping for 5 seconds more...")
-    print ("Instance: "+instance_dev.name+" is in "+inst_status_dev+" state, sleeping for 5 seconds more...")
+while inst_status_dev2 == 'BUILD' or inst_status_dev3 == 'BUILD':
+    print ("Instance: "+instance_dev2.name+" is in "+inst_status_dev2+" state, sleeping for 5 seconds more...")
+    print ("Instance: "+instance_dev3.name+" is in "+inst_status_dev3+" state, sleeping for 5 seconds more...")
     time.sleep(5)
-    instance_prod = nova.servers.get(instance_prod.id)
-    inst_status_prod = instance_prod.status
-    instance_dev = nova.servers.get(instance_dev.id)
-    inst_status_dev = instance_dev.status
+    instance_dev2 = nova.servers.get(instance_dev2.id)
+    inst_status_dev2 = instance_dev2.status
+    instance_dev3 = nova.servers.get(instance_dev3.id)
+    inst_status_dev3 = instance_dev3.status
 
-ip_address_prod = None
-for network in instance_prod.networks[private_net]:
+ip_address_dev2 = None
+for network in instance_dev2.networks[private_net]:
     if re.match('\d+\.\d+\.\d+\.\d+', network):
-        ip_address_prod = network
+        ip_address_dev2 = network
         break
-if ip_address_prod is None:
+if ip_address_dev2 is None:
     raise RuntimeError('No IP address assigned!')
 
-ip_address_dev = None
-for network in instance_dev.networks[private_net]:
+ip_address_dev3 = None
+for network in instance_dev3.networks[private_net]:
     if re.match('\d+\.\d+\.\d+\.\d+', network):
-        ip_address_dev = network
+        ip_address_dev3 = network
         break
-if ip_address_dev is None:
+if ip_address_dev3 is None:
     raise RuntimeError('No IP address assigned!')
 
-print ("Instance: "+ instance_prod.name +" is in " + inst_status_prod + " state" + " ip address: "+ ip_address_prod)
-print ("Instance: "+ instance_dev.name +" is in " + inst_status_dev + " state" + " ip address: "+ ip_address_dev)
+print ("Instance: "+ instance_dev2.name +" is in " + inst_status_dev2 + " state" + " ip address: "+ ip_address_dev2)
+print ("Instance: "+ instance_dev3.name +" is in " + inst_status_dev3 + " state" + " ip address: "+ ip_address_dev3)
+
