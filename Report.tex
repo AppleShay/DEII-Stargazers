@@ -87,7 +87,7 @@ Our system is structured as a modular pipeline:
     \item \textbf{Data Collection:} GitHub API used to collect metadata for 1000 repositories with $>$50 stars.
     \item \textbf{Feature Engineering:} Extracted and computed features like \textit{commits, forks, watchers, project age, update delay, etc.}
     \item \textbf{Model Training:} Regression models trained using Scikit-learn pipelines with standard preprocessing.
-    \item \textbf{Serving:} A FastAPI app exposes the best model via REST endpoint, deployed with Docker and CI/CD via GitHooks and Ansible on separate Dev/Prod VMs.
+    \item \textbf{Serving:} A FastAPI app exposes the best model via REST endpoint, or a flask application, deployed with Docker and CI/CD via GitHooks and Ansible on separate Dev/Prod VMs.
 \end{itemize}
 
 \section{Results}
