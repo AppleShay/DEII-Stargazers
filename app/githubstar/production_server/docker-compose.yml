@@ -1,32 +1,46 @@
-version: '3.8'
+version: "3.8"
 
 services:
   web:
-    build: .
+    build:
+      context: .
     container_name: flask-app
+    restart: always
     ports:
       - "5100:5100"
     volumes:
-      - ./production_server:/app
+      - type: bind
+        source: .
+        target: /app
+    command: python /app/app.py
     depends_on:
-      - rabbitmq
+      - rabbit
 
-  worker:
-    build: .
+  worker_1:
+    build:
+      context: .
     container_name: celery-worker
-    command: celery -A workerA worker --loglevel=info
+    restart: always
+    hostname: worker_1
     volumes:
-      - ./production_server:/app
+      - type: bind
+        source: .
+        target: /app
+    entrypoint: celery
+    command: -A workerA worker --loglevel=debug
+    links:
+      - rabbit
     depends_on:
-      - rabbitmq
+      - rabbit
 
-  rabbitmq:
+  rabbit:
     image: rabbitmq:3-management
     container_name: rabbitmq
+    hostname: rabbit
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"     # for Celery broker
+      - "15672:15672"   # for RabbitMQ web UI
     environment:
-      RABBITMQ_DEFAULT_USER: rabbitmq
-      RABBITMQ_DEFAULT_PASS: rabbitmq
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=rabbitmq
 
