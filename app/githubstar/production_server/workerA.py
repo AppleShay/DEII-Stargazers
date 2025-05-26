@@ -3,7 +3,7 @@ import numpy as np
 import joblib
 
 # Celery configuration
-CELERY_BROKER_URL = 'amqp://rabbitmq:rabbitmq@rabbitmq:5672/'
+CELERY_BROKER_URL = 'amqp://rabbitmq:rabbitmq@rabbit:5672/'
 CELERY_RESULT_BACKEND = 'rpc://'
 
 # Initialize Celery
