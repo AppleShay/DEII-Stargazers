@@ -128,7 +128,7 @@ def main():
 
     df_final = df[features_to_keep]
 
-    out_path = Path("data/feature/all_features.csv")
+    out_path = Path("data/features/features.csv")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df_final.to_csv(out_path, index=False)
     print(f" Saved {len(df_final)} rows to {out_path}")
