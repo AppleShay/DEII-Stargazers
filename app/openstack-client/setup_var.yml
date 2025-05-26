@@ -1,2 +1,3 @@
-prod_home: /technical-training/model-serving/ci_cd/production_server
-dev_home: /technical-training/model-serving/ci_cd/development_server
+prod_home: /modeltraining/DEII-Stargazers/app/githubstar/production_server
+dev_home: /modeltraining/DEII-Stargazers/app/githubstar/development_server
+

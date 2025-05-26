@@ -19,20 +19,30 @@
      apt: update_cache=yes upgrade=dist
      become: true
 
-   - name: Download git repository
+   - name: Copy SSH private key to remote
+     become: true
+     copy:
+       src: /home/ubuntu/.ssh/id_ed25519    
+       dest: /home/appuser/.ssh/id_ed25519
+       owner: appuser
+       group: appuser
+       mode: '0600'
+
+   - name: Clone private GitHub repo using SSH
      become: true
      git:
-      repo: 'https://github.com/sztoor/model_serving.git'
-      dest: /model_serving 
-      
-   - name: Change ownership of a directory
+       repo: 'git@github.com:AppleShay/DEII-Stargazers.git'
+       dest: /DEII-Stargazers 
+       key_file: /home/appuser/.ssh/id_ed25519
+       accept_hostkey: yes
+
+   - name: Fix permissions of cloned project
      become: true
      file:
-      path: /technical-training
-      state: directory
-      recurse: yes
-      owner: appuser
-      group: appuser
+       path: /modeltraining
+       owner: appuser
+       group: appuser
+       recurse: yes
 
 - hosts: prodserver
  
@@ -93,7 +103,7 @@
      become: true
      shell: docker compose up -d 
      args: 
-      chdir: /model_serving/ci_cd/production_server 
+      chdir: /DEII-Stargazers/app/githubstar/production_server
 
 - hosts: devserver
   
@@ -108,4 +118,17 @@
    - name: Install ML packages
      become: true
      pip: 
-      name: tensorflow==2.10.0, keras==2.10.0, numpy<2.0, future
+      name: 
+          - scikit-learn==1.6.1
+          - xgboost==3.0.1
+          - tensorflow==2.10.0
+          - keras==2.10.0
+          - lightgbm==4.6.0
+          - numpy==2.2.6
+          - scipy==1.15.3
+          - pandas==2.2.3
+          - joblib==1.5.0
+          - future
+          - threadpoolctl==3.6.0
+          - six==1.17.0
+          - packaging==25.0
