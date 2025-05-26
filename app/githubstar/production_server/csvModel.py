@@ -95,12 +95,12 @@ for name, model in models.items():
 
     cv = cross_val_score(model, X, y, cv=5, scoring="r2")
     print(f"  5-Fold CV R²: {cv.mean():.4f} ± {cv.std():.4f}")
-# 7. Save best model
+# 7. Save final model
 best_model_name = max(results, key=lambda x: results[x]["r2"])
 best_model = models[best_model_name]
 
-with open("best_model.pkl", "wb") as f:
-    pickle.dump(best_model, f)
+with open("final_model.pkl", "wb") as f:
+    pickle.dump(final_model, f)
 
-print(f"\n Best model: {best_model_name} (R² = {results[best_model_name]['r2']:.4f})")
-print(" Saved to best_model.pkl")
+print(f"\n final model: {final_model_name} (R² = {results[final_model_name]['r2']:.4f})")
+print(" Saved to final_model.pkl")
