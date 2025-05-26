@@ -1,25 +1,26 @@
 {
   "linear": {
-    "test_r2_log": 0.5466740905348196
+    "test_r2_log": 0.591570843396346
   },
   "ridge": {
-    "test_r2_log": 0.545593333340243
+    "test_r2_log": 0.5945743764162547
   },
   "rf": {
-    "test_r2_log": 0.5066705832153733
+    "test_r2_log": 0.7880395092538041
   },
   "xgb": {
-    "cv_r2_log": 0.6145623746616474,
+    "cv_r2_log": 0.8923325312843585,
     "best_params": {
       "max_depth": 3,
       "n_estimators": 100
     }
   },
   "lgbm": {
-    "cv_r2_log": 0.5947895176734167,
+    "cv_r2_log": 0.8820342685111199,
     "best_params": {
-      "max_depth": -1,
-      "n_estimators": 100
+      "learning_rate": 0.1,
+      "max_depth": 3,
+      "n_estimators": 300
     }
   }
 }
