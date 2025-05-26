@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template
 import numpy as np
-from celery_app import get_predictions  # Import the Celery task
+from workerA import get_predictions  # Import the Celery task
 
 app = Flask(__name__)
 
