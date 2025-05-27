@@ -43,8 +43,15 @@ This repository implements model serving cluster using Flask, Celery, OpenStack,
     - `final_model.pkl`  
     - `newModel.py`  
     - `features2.parquet`  
-    - `csvModel.py`  
+    - `model_raytune.py`  
     - `features.csv`
+   
+/scalability
+- `1medium`
+- `2medium`
+- `3medium`  
+- `1small`  
+- `1large`  
   
  - UPPMAX 2025_1-1-openrc.sh 
 ---
