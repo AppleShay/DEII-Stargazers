@@ -1,60 +1,20 @@
-# Web & Template
-Flask==3.1.1              # Web framework
-Jinja2==3.1.6             # HTML templating
-Werkzeug==3.1.3           # WSGI toolkit
-MarkupSafe==3.0.2         # String escaping
-itsdangerous==2.2.0       # Secure data serialization
+# Core runtime for model prediction
+scikit-learn==1.6.1
+joblib==1.5.0
+numpy==2.2.0
+pandas==2.2.2            
 
-# Celery & Messaging
-celery                   # Task queue
-amqp                     # Messaging protocol (used by Celery)
+# Flask web service
+Flask==3.1.1
+Jinja2==3.1.3
+Werkzeug==3.1.3
+itsdangerous==2.2.0
 
-# Model loading
-joblib==1.5.0            # Model serialization
-future                   # Python 2/3 compatibility (if needed)
+# Celery for async task queue
+celery==5.3.6
+amqp==5.2.0
 
-# Machine Learning / AI frameworks
-scikit-learn==1.6.1      # ML models and utilities
-xgboost==3.0.1           # Gradient boosting library
-tensorflow==2.10.0       # Deep learning framework
-keras==2.10.0            # High-level API for TensorFlow
-
-# Numerical & Scientific
-numpy==2.2.6             # Numerical computations
-scipy==1.15.3            # Scientific computing
-pandas==2.2.3            # Data analysis
-matplotlib==3.10.3       # Plotting
-seaborn==0.13.2          # Statistical visualization
-
-# Plotting dependencies
-cycler==0.12.1
-contourpy==1.3.2
-fonttools==4.58.0
-kiwisolver==1.4.8
-pyparsing==3.2.3
-pillow==11.2.1
-
-# Date/time handling
-python-dateutil==2.9.0.post0  # Datetime utilities
-pytz==2025.2                  # Timezone handling
-tzdata==2025.2                # Timezone database
-
-# General utilities
-requests==2.32.3          # HTTP requests
-urllib3==2.4.0            # Low-level HTTP client
-charset-normalizer==3.4.2 # Encoding detection
-idna==3.10                # Internationalized domain support
-click==8.2.1              # CLI helper
-blinker==1.9.0            # Signal support
-six==1.17.0               # Python 2/3 compatibility
-threadpoolctl==3.6.0      # Thread pool control
-packaging==25.0           # Version and packaging tools
-
-# Optional: GPU/NVIDIA
-nvidia-nccl-cu12==2.26.5  # NVIDIA NCCL for CUDA (if using GPU)
-
-# Optional: Apache Arrow (for advanced data transport)
-pyarrow==20.0.0
-
-# Optional: LightGBM
-lightgbm==4.6.0           # Gradient boosting framework
+# HTTP utils
+click==8.1.7
+requests==2.32.3
+xgboost
