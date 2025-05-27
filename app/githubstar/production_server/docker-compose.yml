@@ -44,3 +44,8 @@ services:
       - RABBITMQ_DEFAULT_USER=rabbitmq
       - RABBITMQ_DEFAULT_PASS=rabbitmq
 
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
