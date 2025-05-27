@@ -15,7 +15,7 @@ def predict():
         features = []
         repos = []
 
-        for i in range(1, 6):
+        for i in range(5):
             # Get repository name from the form
             name = request.form.get(f'name{i}', f'Repo {i}')
 
@@ -43,14 +43,15 @@ def predict():
             repos.append({"name": name})
 
         X = np.array(features)
+        print("before",X)
 
         # === Call Celery task for predictions ===
-        result = get_predictions.delay(X.tolist())  # Convert to list to make it JSON serializable
-        predictions = result.get(timeout=10)
+        result = get_predictions(X)
+        print("re",result) 
 
         # Attach predictions to corresponding repos
         for i in range(5):
-            repos[i]["predicted_stars"] = int(predictions[i])
+            repos[i]["predicted_stars"] = int(result[i])
 
         # Sort repositories by predicted stars in descending order
         repos_sorted = sorted(repos, key=lambda x: x["predicted_stars"], reverse=True)
@@ -63,4 +64,3 @@ def predict():
 
 if __name__ == '__main__':
     # Run Flask app
-    app.run(host='0.0.0.0', port=5100, debug=True)
