@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template
 import numpy as np
-from workerA import get_predictions  # Import the Celery task
+from workerA import get_predictions
 
 app = Flask(__name__)
 
@@ -43,11 +43,9 @@ def predict():
             repos.append({"name": name})
 
         X = np.array(features)
-        print("before",X)
 
         # === Call Celery task for predictions ===
-        result = get_predictions(X)
-        print("re",result) 
+        result = get_predictions(X) 
 
         # Attach predictions to corresponding repos
         for i in range(5):
