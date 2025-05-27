@@ -48,9 +48,10 @@ This repository implements model serving cluster using Flask, Celery, OpenStack,
     - `features.csv`
    
 /scalability 
-  - `1medium`  
-  - `2medium`  
-  - `3medium`  
+- **Result of scalability** 
+  - `1medium`
+  - `2medium`
+  - `3medium`
   - `1small`
   - `1large`
   
