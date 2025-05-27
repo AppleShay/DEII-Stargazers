@@ -49,9 +49,9 @@ This repository implements model serving cluster using Flask, Celery, OpenStack,
 /scalability
 - `1medium`
 - `2medium`
-- `3medium`  
-- `1small`  
-- `1large`  
+- `3medium`
+- `1small`
+- `1large`
   
  - UPPMAX 2025_1-1-openrc.sh 
 ---
