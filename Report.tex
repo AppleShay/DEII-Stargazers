@@ -45,27 +45,19 @@
     
     \large \textbf{Department of Information Technology}\\[15pt]
     \large \textbf{By Group 2}\\[5pt]
-
-
 }
 \author{
-    Shaheryar\\
-    \texttt{shaheryar.4822@student.uu.se}
+    Shaheryar\\ 
     \and
     Rick\\
-    \texttt{riccardo.rebecchi.8372@student.uu.se}
     \and
     Feruz\\
-    \texttt{@student.uu.se}
     \and
     Lu\\
-    \texttt{lu.chen.9450@student.uu.se}
     \and
     Linjia\\
-    \texttt{@student.uu.se}
     }
 \date{\today} % Updates Daily
-
 
 \begin{document}
 
@@ -91,7 +83,7 @@ Our system is structured as a modular pipeline:
     \item \textbf{Data Collection:} GitHub API used to collect metadata for 1000 repositories with $>$50 stars.
     \item \textbf{Feature Engineering:} Extracted and computed features like \textit{commits, forks, watchers, project age, update delay, etc.}. The correlation matrix is the method used to choose the best features.
     \item \textbf{Model Training:} Regression models trained using Scikit-learn pipelines with standard preprocessing.
-    \item \textbf{Serving:} A FastAPI app exposes the best model via REST endpoint, or a flask application, deployed with Docker and CI/CD via GitHooks and Ansible on separate Dev/Prod VMs.
+    \item \textbf{Serving:} A Flask application exposes the best model, orchestrated with Celery and deployed using Docker. CI/CD is implemented via Git hooks and Ansible across separate Dev and Prod virtual machines.
 \end{itemize}
 
 \begin{figure}[H]
@@ -104,47 +96,27 @@ Our system is structured as a modular pipeline:
 \section{Results}
 \subsection{Scalability Analysis}
 We studied the scalability of our project focusing first on the training time, we tried different combinations of VMs for ray tuning as explained later.
-Vertical scaling: We increased computational resources by moving from 1 vCPU → 2 vCPU → 4 vCPU in a single VM, producing a roughly linear speed-up (218 s - 89 s - 40 s).
+
+\textbf{Vertical scaling:} We increased computational resources by moving from 1 vCPU → 2 vCPU → 4 vCPU in a single VM, producing a roughly linear speed-up (218s - 89s - 40s).
 % Vertical Scaling Table
-\begin{table}[ht]
+\begin{figure}[H]
   \centering
-  \caption{Vertical Scaling: Single-VM Training Times}
-  \label{tab:vertical_scaling}
-  \begin{tabular}{l r}
-    \toprule
-    \textbf{VM Size (vCPU)} & \textbf{Training Time (s)} \\
-    \midrule
-    Small (1 vCPU)   & 218.35 \\
-    Medium (2 vCPU)  &  89.97 \\
-    Large (4 vCPU)   &  40.72 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-Horizontal (strong) scaling: We kept the VM size fixed (2 vCPU) but added more identical nodes. Doubling from 1 to 2 VMs halved the time (90 s → 40 s), and tripling to 3 VMs cut it to ~27 s—again near‐linear speedup.
-
+  \includegraphics[width=0.6\textwidth]{ver.png}
+  \caption{Vertical Scaling: Single-VM size vs. Training Times}
+  \label{fig:vertical}
+\end{figure}
+\textbf{VHorizontal scaling:} We kept the VM size fixed (2 vCPU) but added more identical nodes. Doubling from 1 to 2 VMs halved the time (90s → 40s), and tripling to 3 VMs cut it to ~27 s—again near‐linear speedup.
 % Horizontal Scaling Table
-\begin{table}[ht]
+\begin{figure}[H]
   \centering
-  \caption{Horizontal (Strong) Scaling: Training Time vs. Number of Medium VMs}
-  \label{tab:horizontal_scaling}
-  \begin{tabular}{r r}
-    \toprule
-     \textbf{Medium VMs (2 vCPU each)} & \textbf{Training Time (s)} \\
-    \midrule
-    1 Medium VM & 89.97 \\
-    2 Medium VMs & 40.23 \\
-    3 Medium VMs & 27.20 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-
+  \includegraphics[width=0.6\textwidth]{hori.png}
+  \caption{Horizontal Scaling: Number of Medium VMs vs. Training Time}
+  \label{fig:horizontal}
+\end{figure}
 We also benchmarked the /predict endpoint of the deployed Flask application to evaluate how well the system handles real-time model inference under load. Using ApacheBench with 1000 POST requests and 10 concurrent users, the application maintained a throughput of 351.69 requests per second with zero failed requests. The median prediction response time was 28 ms, and the maximum was only 45 ms. These results demonstrate that the deployed model serves real-time predictions efficiently and reliably, making it scalable for multiple concurrent users in practical scenarios.
 
 \begin{table}[H]
 \centering
-\caption{Load test results for \texttt{/predict} endpoint using ApacheBench}
 \begin{tabular}{|l|c|}
 \hline
 \textbf{Metric} & \textbf{Value} \\
@@ -158,32 +130,45 @@ Max request time           & 45 ms \\
 Median response time       & 28 ms \\
 \hline
 \end{tabular}
+\caption{Load test results for \texttt{/predict} endpoint using ApacheBench}
 \label{tab:predict-benchmark}
 \end{table}
 
 Taken together, these numbers illustrate that our deployed model–serving stack is both fast and stable: it can sustain steady throughput at low per‐request latencies, with minimal variation between typical and worst‐case response times.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.7\textwidth]{Comparison.png}
-  \caption{Scalability Comparison}
-  \label{fig:my-image}
-\end{figure}
 
 \subsection{Model Comparison and Accuracy}
-We evaluated five models:
-\begin{itemize}[noitemsep]
-    \item Linear Regression: R² = 0.54
-    \item Ridge Regression: R² = 0.54
-    \item Random Forest: R² = 0.50
-    \item XGBoost: R² = 0.61
-    \item LightGBM: R² = 0.59
-\end{itemize}
+We trained five different machine learning models to evaluate their effectiveness in predicting the number of stargazers for GitHub repositories. We applied hyperparameter optimization using Ray Tune for the Random Forest and XGBoost model to further enhance performance. Finally, we obtained the best performance metrics for all five models under their respective optimal configurations.
 
-The best performance was achieved using \textbf{XGBoost}, and it was exported as a `.pkl` artifact used in the deployed app. Predictions on real-world repositories showed close alignment with actual star counts, validating the generalization of the model.
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Model} & \textbf{R² score} \\
+\hline
+Linear Regression          & 0.59 \\
+Ridge Regression           & 0.59 \\
+Random Forest              & 0.69 \\
+XGBoost                    & 0.59 \\
+LightGBM                   & 0.62 \\
+\hline
+\end{tabular}
+\caption{Best Accuracy for all models}
+\label{tab:model}
+\end{table}
+
+The best performance was achieved using \textbf{Random Forest}, whose $R^2$ score is 0.69
+with the parameters of \texttt{n\_estimators} = 100 and \texttt{max\_depth} = 7.
+It was exported as a \texttt{.pkl} artifact used in the deployed app.
+Within the limited time available, the final model still demonstrated a certain level
+of generalization ability, despite having room for further optimization.
+
 
 \section{Conclusion}
-We demonstrated an end-to-end predictive pipeline for estimating GitHub stars based on repository metadata. The system is modular, reproducible, and production-ready. Future extensions may include time-series forecasting or community activity trends to improve accuracy further. Additionally, active learning could be a valuable implementation to iteratively enhance the model by selectively querying the most informative data points 
+We demonstrated an end-to-end predictive pipeline for estimating GitHub stars based on repository metadata. The system is modular, reproducible, and production-ready. Future extensions may include time-series forecasting or community activity trends to improve accuracy further. Additionally, active learning could be a valuable implementation to iteratively enhance the model by selectively querying the most informative data points. 
+
+\section{Repository}
+\href{https://github.com/AppleShay/DEII-Stargazers/tree/main}{\texttt{github.com/AppleShay/DEII-Stargazers}}
 
 \begin{thebibliography}{9}
 
