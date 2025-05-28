@@ -97,9 +97,80 @@ Our system is structured as a modular pipeline:
     \item \textbf{Serving:} A FastAPI app exposes the best model via REST endpoint, or a flask application, deployed with Docker and CI/CD via GitHooks and Ansible on separate Dev/Prod VMs.
 \end{itemize}
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Architecture.png}
+  \caption{System Architecture}
+  \label{fig:my-image}
+\end{figure}
+
 \section{Results}
 \subsection{Scalability Analysis}
-While our dataset is limited to 1000 repositories (due to GitHub API limits), our architecture supports horizontal scaling. Data collection can be parallelized, the FastAPI service is Dockerized for deployment via Kubernetes or Docker Swarm, and models are trained using scikit-learn pipelines compatible with distributed training if needed. The system is built with modularity and extensibility in mind, allowing future scale-up in both data and user requests.
+Vertical scaling: We boosted compute by moving from 1 vCPU → 2 vCPU → 4 vCPU in a single VM, yielding roughly linear speedup (218 s → 89 s → 40 s).
+% Vertical Scaling Table
+\begin{table}[ht]
+  \centering
+  \caption{Vertical Scaling: Single-VM Training Times}
+  \label{tab:vertical_scaling}
+  \begin{tabular}{l r}
+    \toprule
+    \textbf{VM Size (vCPU)} & \textbf{Training Time (s)} \\
+    \midrule
+    Small (1 vCPU)   & 218.35 \\
+    Medium (2 vCPU)  &  89.97 \\
+    Large (4 vCPU)   &  40.72 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Horizontal (strong) scaling: We kept VM size fixed (2 vCPU) but added more identical nodes. Doubling from 1 → 2 VMs halved the time (90 s → 40 s), and tripling to 3 VMs cut it to ~27 s—again near‐linear speedup.
+
+% Horizontal Scaling Table
+\begin{table}[ht]
+  \centering
+  \caption{Horizontal (Strong) Scaling: Training Time vs. Number of Medium VMs}
+  \label{tab:horizontal_scaling}
+  \begin{tabular}{r r}
+    \toprule
+     \textbf{Medium VMs (2 vCPU each)} & \textbf{Training Time (s)} \\
+    \midrule
+    1 Medium VM & 89.97 \\
+    2 Medium VMs & 40.23 \\
+    3 Medium VMs & 27.20 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+We also benchmarked the /predict endpoint of the deployed Flask application to evaluate how well the system handles real-time model inference under load. Using ApacheBench with 1000 POST requests and 10 concurrent users, the application maintained a throughput of 351.69 requests per second with zero failed requests. The median prediction response time was 28 ms, and the maximum was only 45 ms. These results demonstrate that the deployed model serves real-time predictions efficiently and reliably, making it scalable for multiple concurrent users in practical scenarios.
+
+\begin{table}[H]
+\centering
+\caption{Load test results for \texttt{/predict} endpoint using ApacheBench}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+Requests completed         & 1000 \\
+Failed requests            & 0 \\
+Concurrency level          & 10 \\
+Requests per second        & 351.69 \\
+Mean time per request      & 28.43 ms \\
+Max request time           & 45 ms \\
+Median response time       & 28 ms \\
+\hline
+\end{tabular}
+\label{tab:predict-benchmark}
+\end{table}
+
+Taken together, these numbers illustrate that our deployed model–serving stack is both fast and stable: it can sustain steady throughput at low per‐request latencies, with minimal variation between typical and worst‐case response times.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{Comparison.png}
+  \caption{Scalability Comparison}
+  \label{fig:my-image}
+\end{figure}
 
 \subsection{Model Comparison and Accuracy}
 We evaluated five models:
