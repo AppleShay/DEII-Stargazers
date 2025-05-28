@@ -121,6 +121,7 @@ Fetch repo metadata via the GitHub REST API, build tabular features, train and e
         │   │
         │   └── models/
         │       └── train.py         # Trains models and saves metrics
+        │  
         ├── app/
         │   ├── openstack-client/
         │   │   ├── OpenStack instance setup scripts/
@@ -130,11 +131,11 @@ Fetch repo metadata via the GitHub REST API, build tabular features, train and e
         │   │
         │   ├── githubstar/
         │   │   ├── production_server/
-        │   │   └── development_server/ # Extracts and transforms features, saves parquet
+        │   │   └── development_server/ 
         │   │
-        │   ├──scalability/
-        │   ├──UPPMAX 2025_1-1-openrc.sh
-        │   └──README.md
+        │   ├── scalability/
+        │   ├── UPPMAX 2025_1-1-openrc.sh
+        │   └── README.md
     
 
 
