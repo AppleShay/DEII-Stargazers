@@ -53,7 +53,7 @@
     \texttt{shaheryar.4822@student.uu.se}
     \and
     Rick\\
-    \texttt{@student.uu.se}
+    \texttt{riccardo.rebecchi.8372@student.uu.se}
     \and
     Feruz\\
     \texttt{@student.uu.se}
@@ -89,7 +89,7 @@ Building on this foundation, our project uses different methods like XGBoost and
 Our system is structured as a modular pipeline:
 \begin{itemize}
     \item \textbf{Data Collection:} GitHub API used to collect metadata for 1000 repositories with $>$50 stars.
-    \item \textbf{Feature Engineering:} Extracted and computed features like \textit{commits, forks, watchers, project age, update delay, etc.}
+    \item \textbf{Feature Engineering:} Extracted and computed features like \textit{commits, forks, watchers, project age, update delay, etc.}. The correlation matrix is the method used to choose the best features.
     \item \textbf{Model Training:} Regression models trained using Scikit-learn pipelines with standard preprocessing.
     \item \textbf{Serving:} A FastAPI app exposes the best model via REST endpoint, or a flask application, deployed with Docker and CI/CD via GitHooks and Ansible on separate Dev/Prod VMs.
 \end{itemize}
@@ -103,7 +103,8 @@ Our system is structured as a modular pipeline:
 
 \section{Results}
 \subsection{Scalability Analysis}
-Vertical scaling: We boosted compute by moving from 1 vCPU → 2 vCPU → 4 vCPU in a single VM, yielding roughly linear speedup (218 s → 89 s → 40 s).
+We studied the scalability of our project focusing first on the training time, we tried different combinations of VMs for ray tuning as explained later.
+Vertical scaling: We increased computational resources by moving from 1 vCPU → 2 vCPU → 4 vCPU in a single VM, producing a roughly linear speed-up (218 s - 89 s - 40 s).
 % Vertical Scaling Table
 \begin{table}[ht]
   \centering
@@ -120,7 +121,7 @@ Vertical scaling: We boosted compute by moving from 1 vCPU → 2 vCPU → 4 vCPU
   \end{tabular}
 \end{table}
 
-Horizontal (strong) scaling: We kept VM size fixed (2 vCPU) but added more identical nodes. Doubling from 1 → 2 VMs halved the time (90 s → 40 s), and tripling to 3 VMs cut it to ~27 s—again near‐linear speedup.
+Horizontal (strong) scaling: We kept the VM size fixed (2 vCPU) but added more identical nodes. Doubling from 1 to 2 VMs halved the time (90 s → 40 s), and tripling to 3 VMs cut it to ~27 s—again near‐linear speedup.
 
 % Horizontal Scaling Table
 \begin{table}[ht]
@@ -182,7 +183,7 @@ We evaluated five models:
 The best performance was achieved using \textbf{XGBoost}, and it was exported as a `.pkl` artifact used in the deployed app. Predictions on real-world repositories showed close alignment with actual star counts, validating the generalization of the model.
 
 \section{Conclusion}
-We demonstrated an end-to-end predictive pipeline for estimating GitHub stars based on repository metadata. The system is modular, reproducible, and production-ready. Future extensions may include time-series forecasting or community activity trends to improve accuracy further.
+We demonstrated an end-to-end predictive pipeline for estimating GitHub stars based on repository metadata. The system is modular, reproducible, and production-ready. Future extensions may include time-series forecasting or community activity trends to improve accuracy further. Additionally, active learning could be a valuable implementation to iteratively enhance the model by selectively querying the most informative data points 
 
 \begin{thebibliography}{9}
 
