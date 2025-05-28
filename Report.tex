@@ -64,7 +64,7 @@
 \maketitle
 
 \section{Introduction}
-This project proposes and implements a complete "Star Predictor" system. The system collects historical data of open source projects through the GitHub API, extracts key features of the project activity (such as repository size, ammount of folks, etc.), trains multiple machine learning models (XGBoost, random forest, etc.), and selects the best model based on the prediction accuracy to achieve modeling and prediction of the popularity of open source projects. We use two virtual machines (VMs) for system deployment, one for model development and training, and the other for production deployment, and use GitHooks to achieve continuous integration and delivery of the model. Finally, the deployed application can predict and rank 5 GitHub projects, simulating the actual application scenario of the recommendation system.
+This project proposes and implements a complete "Star Predictor" system. The system collects historical data of open source projects through the GitHub API, extracts key features of the project activity (such as repository size, ammount of folks, etc.), trains multiple machine learning models (XGBoost, random forest, etc.), and selects the best model based on the prediction accuracy to achieve modeling and prediction of the popularity of open source projects. We use seperate virtual machines (VMs) for system deployment, one for model development and training, and the other for production deployment, and use GitHooks to achieve continuous integration and delivery of the model. Finally, the deployed application can predict and rank 5 GitHub projects, simulating the actual application scenario of the recommendation system.
 
 This study finally verified the differences in prediction accuracy among different models, and also evaluated the scalability and practicality of the overall system.
 
@@ -79,21 +79,28 @@ Building on this foundation, our project uses different methods like XGBoost and
 
 \section{System Overview}
 \subsection{System pipeline}
-Our system is structured as a modular pipeline:
-\begin{itemize}
-    \item \textbf{Data Collection:} GitHub API used to collect metadata for 1000 repositories with $>$50 stars.
-    \item \textbf{Feature Engineering:} Extracted and computed features like \textit{commits, forks, watchers, project age, update delay, etc.}. The correlation matrix is the method used to choose the best features.
-    \item \textbf{Model Training:} Regression models trained using Scikit-learn pipelines with standard preprocessing.
-    \item \textbf{Serving:} A Flask application exposes the best model, orchestrated with Celery and deployed using Docker. CI/CD is implemented via Git hooks and Ansible across separate Dev and Prod virtual machines.
-\end{itemize}
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{Architecture.png}
   \caption{System pipeline}
   \label{fig:my-image}
 \end{figure}
+Our system is structured as a modular pipeline:
+\begin{itemize}
+    \item \textbf{Data Collection:} GitHub API used to collect metadata for 1000 repositories with $>$50 stars.
+    \item \textbf{Feature Engineering:} Extracted and computed features like \textit{commits, forks, watchers, project age, update delay, etc.}. The correlation matrix is the method used to choose the best features.
+    \item \textbf{Model Training:} Regression models trained using Scikit-learn pipelines with standard preprocessing.
+    \item \textbf{Serving:} A Flask application exposes the best model orchestrated with Celery, or a FastAPI app exposes the best model via REST endpoint. CI/CD is implemented via Git hooks and Ansible across separate Dev and Prod virtual machines and deployed using docker.
+\end{itemize}
+
 
 \subsection{System Architecture}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{System.png}
+  \caption{System Architecture}
+  \label{fig:my-image}
+\end{figure}
 Our system uses a modular multi-node design with clear separation of development, production, and orchestration responsibilities:
 \begin{itemize}
     \item \textbf{Client VM:} Acts as the central controller, using Ansible to automate deployments and manage configurations.
@@ -101,12 +108,7 @@ Our system uses a modular multi-node design with clear separation of development
     \item \textbf{Production server:} Hosts a Dockerized Flask app with the best model. It only receives updates after successful validation on Dev.
     \item \textbf{Deployment Workflow:} From the Client VM,  Developers trigger Ansible from the Client VM. Git Hooks in Dev push updates to Prod only when a better R² score is achieved. Docker ensures consistent environments.
 \end{itemize}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\textwidth]{System.png}
-  \caption{System Architecture}
-  \label{fig:my-image}
-\end{figure}
+
 This setup supports reproducibility, scalability, and safe model deployment.
 
 \section{Results}
