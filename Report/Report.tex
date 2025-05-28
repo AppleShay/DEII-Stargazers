@@ -48,13 +48,9 @@
 }
 \author{
     Shaheryar\\ 
-    \and
-    Rick\\
-    \and
-    Feruz\\
-    \and
+    Riccardo Rebecchi\\
+    Feruz Redi\\
     Lu Chen\\
-    \and
     Linjia Zhong\\
     }
 \date{\today} % Updates Daily
@@ -123,7 +119,7 @@ We studied the scalability of our project focusing first on the training time, w
   \caption{Vertical Scaling: Single-VM size vs. Training Times}
   \label{fig:vertical}
 \end{figure}
-\textbf{VHorizontal scaling:} We kept the VM size fixed (2 vCPU) but added more identical nodes. Doubling from 1 to 2 VMs halved the time (90s → 40s), and tripling to 3 VMs cut it to ~27 s—again near‐linear speedup.
+\textbf{Horizontal scaling:} We kept the VM size fixed (2 vCPU) but added more identical nodes. Doubling from 1 to 2 VMs halved the time (90s → 40s), and tripling to 3 VMs cut it to ~27 s—again near‐linear speedup.
 % Horizontal Scaling Table
 \begin{figure}[H]
   \centering
