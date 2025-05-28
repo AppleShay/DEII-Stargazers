@@ -77,7 +77,8 @@ Another relevant study was carried out by Sahin et al. (2019),\cite{4} who used 
 
 Building on this foundation, our project uses different methods like XGBoost and random forest and uses the best model to predict the number of stargazers a repository may receive. 
 
-\section{System Architecture}
+\section{System Overview}
+\subsection{System pipeline}
 Our system is structured as a modular pipeline:
 \begin{itemize}
     \item \textbf{Data Collection:} GitHub API used to collect metadata for 1000 repositories with $>$50 stars.
@@ -85,7 +86,15 @@ Our system is structured as a modular pipeline:
     \item \textbf{Model Training:} Regression models trained using Scikit-learn pipelines with standard preprocessing.
     \item \textbf{Serving:} A Flask application exposes the best model, orchestrated with Celery and deployed using Docker. CI/CD is implemented via Git hooks and Ansible across separate Dev and Prod virtual machines.
 \end{itemize}
-
+\subsection{System Architecture}
+Our system uses a modular multi-node design with clear separation of development, production, and orchestration responsibilities:
+\begin{itemize}
+    \item \textbf{Client VM:} Acts as the central controller, using Ansible to automate deployments and manage configurations.
+    \item \textbf{Development server:} A three-node cluster handles model training with Ray Tune, local testing, and automated deployment to production via Git Hooks.
+    \item \textbf{Production server:} Hosts a Dockerized Flask app with the best model. It only receives updates after successful validation on Dev.
+    \item \textbf{Deployment Workflow:} From the Client VM,  Developers trigger Ansible from the Client VM. Git Hooks in Dev push updates to Prod only when a better R² score is achieved. Docker ensures consistent environments.
+\end{itemize}
+This setup supports reproducibility, scalability, and safe model deployment.
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{Architecture.png}
