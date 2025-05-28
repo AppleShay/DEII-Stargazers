@@ -86,6 +86,13 @@ Our system is structured as a modular pipeline:
     \item \textbf{Model Training:} Regression models trained using Scikit-learn pipelines with standard preprocessing.
     \item \textbf{Serving:} A Flask application exposes the best model, orchestrated with Celery and deployed using Docker. CI/CD is implemented via Git hooks and Ansible across separate Dev and Prod virtual machines.
 \end{itemize}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Architecture.png}
+  \caption{System pipeline}
+  \label{fig:my-image}
+\end{figure}
+
 \subsection{System Architecture}
 Our system uses a modular multi-node design with clear separation of development, production, and orchestration responsibilities:
 \begin{itemize}
@@ -94,13 +101,13 @@ Our system uses a modular multi-node design with clear separation of development
     \item \textbf{Production server:} Hosts a Dockerized Flask app with the best model. It only receives updates after successful validation on Dev.
     \item \textbf{Deployment Workflow:} From the Client VM,  Developers trigger Ansible from the Client VM. Git Hooks in Dev push updates to Prod only when a better R² score is achieved. Docker ensures consistent environments.
 \end{itemize}
-This setup supports reproducibility, scalability, and safe model deployment.
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{Architecture.png}
+  \includegraphics[width=0.8\textwidth]{System.png}
   \caption{System Architecture}
   \label{fig:my-image}
 \end{figure}
+This setup supports reproducibility, scalability, and safe model deployment.
 
 \section{Results}
 \subsection{Scalability Analysis}
