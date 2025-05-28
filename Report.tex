@@ -79,12 +79,14 @@ There is a certain correlation between the activity of a project (such as submis
 This study not only verified the differences in prediction accuracy among different models, but also evaluated the scalability and practicality of the overall system, providing technical support for open source project evaluation and intelligent recommendation.
 
 \section{Related Work}
-Early research treated GitHub stars as a direct indicator of repository popularity and explored simple predictive models. For example, Borges et al. \cite{3} applied multiple linear regression to forecast the number of stars a repository might receive. They found that incorporating recent project activity significantly improved accuracy, and their models performed best when trained on data from the last six months of activity. Features like commit frequency, number of forks, and number of watchers were shown to correlate strongly with popularity, suggesting that active development and user interest contribute to a repository's appeal.
+Early research treated GitHub stars as a direct indicator of repository popularity and explored simple predictive models. For example, Borges et al.\cite{3} applied multiple linear regression to forecast the number of stars a repository might receive. They found that incorporating recent project activity significantly improved accuracy, and their models performed best when trained on data from the last six months of activity. Features like commit frequency, number of forks, and number of watchers were shown to correlate strongly with popularity, suggesting that active development and user interest contribute to a repository's appeal.
 
 
-Subsequent studies have explored this topic using more advanced methods and broader datasets. A study by Lima et al.\cite{1} analyzed over 400{,}000 GitHub repositories and found that certain indicators of activity such as the number of branches, open issues, and contributors were strong signals of future popularity. Other researchers like Saad et al.\cite{2} viewed the prediction problem over time and used neural networks to estimate how star counts might change as projects evolved. These studies emphasized that both development activity and growth trends are important for understanding what makes a project more likely to gain attention. 
+Subsequent studies have explored this topic using more advanced methods and broader datasets. A study by Han et al. (2019) conducted a large-scale study of over 400,000 repositories to classify which projects would cross a popularity threshold of 100 stars. They collected 35 different features about each repository, including development activity such as open issues, number of branches, and contributor count. Using a random forest classifier, their model achieved strong results and identified development activity as a key predictor of success.\cite{1}  
 
-Building on this foundation, our project uses different methods like XGBoost and random forest and uses the best model to predict the number of stargazers a repository may receive. The features used include commonly available GitHub statistics like the number of commits, forks, and watchers. This model allows us to take into account subtle interactions between these features and aims to produce more accurate results than earlier approaches that relied on basic statistical models or a narrow set of variables\cite{3}.
+Another relevant study was carried out by Sahin et al. (2019),\cite{4} who used recurrent neural networks to model GitHub popularity as a time-series prediction task. Their model incorporated key metrics like commits, forks, releases, and contributor information, with additional weighting based on user influence. The study demonstrated that development activity and user engagement features are valuable inputs for forecasting future popularity. Ren et al.\cite{2} proposed a model called StarIn, which combines traditional repository activity features with social influence metrics derived from the networks of stargazers and their followers. Their approach uses XGBoost to predict future star counts and showed strong performance compared to other baseline models. By incorporating both development activity and social dynamics, the study highlights the importance of considering how user interactions and influence affect repository popularity.
+
+Building on this foundation, our project uses different methods like XGBoost and random forest and uses the best model to predict the number of stargazers a repository may receive. The features used include commonly available GitHub statistics like the number of commits, forks, and watchers. This model allows us to take into account subtle interactions between these features and aims to produce more accurate results than earlier approaches that relied on basic statistical models or a narrow set of variables.
 
 \section{System Architecture}
 Our system is structured as a modular pipeline:
@@ -117,20 +119,25 @@ We demonstrated an end-to-end predictive pipeline for estimating GitHub stars ba
 \begin{thebibliography}{9}
 
 \bibitem{1}
-G. Lima, F. da Silva, and S. Meira,
-\textit{Popularity prediction of GitHub repositories using ensemble learning},
-In Proceedings of the IEEE/ACM International Conference on Mining Software Repositories (MSR), 2020, pp. 92--96.
+J. Han, S. Deng, X. Xia, D. Wang, and J. Yin,  
+\textit{Characterization and prediction of popular projects on GitHub},  
+In Proceedings of the 43rd IEEE Annual Computer Software and Applications Conference (COMPSAC), 2019, pp. 190--199.
 
-\bibitem{2}
-M. Saad et al.,
-\textit{Temporal modeling of GitHub repository popularity using deep learning},
-Journal of Systems and Software, vol. 183, p. 111115, 2022.
+
+\bibitem{2} L. Ren, S. Shan, X. Xu, and Y. Liu, \textit{StarIn: An Approach to Predict the Popularity of GitHub Repository}, Proc. 6th Int. Conf. of Pioneering Computer Scientists, Engineers and Educators (ICPCSEE 2020), 2020, pp. 258--273.
 
 \bibitem{3}
 H. Borges, A. Hora, and M. T. Valente,
 \textit{Predicting the popularity of GitHub repositories},
 In Proceedings of the 12th International Conference on Predictive Models and Data Analytics in Software Engineering, 2016, pp. 1--10.
 
+\bibitem{4}
+S. E. Sahin, K. Karpat, and A. Tosun,  
+\textit{Predicting popularity of open source projects using recurrent neural networks},  
+IEEE Access, vol. 7, pp. 149601--149615, 2019.
+
 \end{thebibliography}
+
+
 
 \end{document}

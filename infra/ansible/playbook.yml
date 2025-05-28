@@ -1,4 +1,43 @@
-- name: Deploy Flask predictor app
+- name: Train model on development server
+  hosts: dev
+  become: yes
+  tasks:
+    - name: Copy project files
+      copy:
+        src: .
+        dest: /home/ubuntu/project
+        mode: preserve
+
+    - name: Run training script
+      command: python3 /home/ubuntu/project/newModel.py
+      args:
+        chdir: /home/ubuntu/project
+
+    - name: Fetch trained model
+      fetch:
+        src: /home/ubuntu/project/best_model.pkl
+        dest: ./model_from_dev/
+        flat: yes
+
+- name: Deploy trained model to production server
+  hosts: prod
+  become: yes
+  tasks:
+    - name: Copy app files
+      copy:
+        src: .
+        dest: /home/ubuntu/app
+        mode: preserve
+
+    - name: Copy trained model to production
+      copy:
+        src: ./model_from_dev/best_model.pkl
+        dest: /home/ubuntu/app/best_model.pkl
+
+    - name: Run Docker container
+      command: docker run -d -p 5100:5100 star-predictor
+      args:
+        chdir: /home/ubuntu/app- name: Deploy Flask predictor app
   hosts: all
   become: yes
   roles:

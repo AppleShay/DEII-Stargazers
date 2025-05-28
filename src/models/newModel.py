@@ -9,6 +9,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 import pickle
 
+from ray import tune
+from ray.tune.sklearn import TuneSearchCV
+
 # === 1. Load data ===
 df = pd.read_parquet("data/features/features2.parquet")
 print(f"✅ Loaded data: {df.shape}")
@@ -46,61 +49,71 @@ preprocessor = Pipeline(
     steps=[("imputer", SimpleImputer(strategy="median")), ("scaler", StandardScaler())]
 )
 
-# === 5. Define models ===
-models = {
-    "Linear Regression": Pipeline(
-        [("preprocessor", preprocessor), ("model", LinearRegression())]
-    ),
-    "Ridge Regression": Pipeline(
-        [("preprocessor", preprocessor), ("model", Ridge(alpha=1.0))]
-    ),
-    "Lasso Regression": Pipeline(
-        [("preprocessor", preprocessor), ("model", Lasso(alpha=0.1))]
-    ),
-    "Random Forest": Pipeline(
-        [
-            ("preprocessor", preprocessor),
-            ("model", RandomForestRegressor(n_estimators=100, random_state=42)),
-        ]
-    ),
-    "Gradient Boosting": Pipeline(
-        [
-            ("preprocessor", preprocessor),
-            ("model", GradientBoostingRegressor(n_estimators=100, random_state=42)),
-        ]
-    ),
+X_train_prep = preprocessor.fit_transform(X_train)
+X_test_prep = preprocessor.transform(X_test)
+
+# Define parameter grids for Ray Tune
+xgb_search_space = {
+    "n_estimators": tune.randint(50, 200),
+    "max_depth": tune.randint(3, 10),
+    "learning_rate": tune.loguniform(1e-3, 0.3),
+    "subsample": tune.uniform(0.5, 1.0),
 }
 
-# === 6. Train and evaluate ===
-print("\n Model Evaluation")
-print("-" * 50)
-results = {}
+rf_search_space = {
+    "n_estimators": tune.randint(50, 200),
+    "max_depth": tune.randint(3, 10),
+    "min_samples_split": tune.randint(2, 10),
+    "min_samples_leaf": tune.randint(1, 4),
+}
+# Initialize models with Ray Tune wrappers
+xgb_tune = TuneSearchCV(
+    XGBRegressor(random_state=42, verbosity=0),
+    param_distributions=xgb_search_space,
+    n_trials=10,
+    scoring="r2",
+    cv=3,
+    verbose=1,
+    random_state=42,
+    n_jobs=-1
+)
 
-for name, model in models.items():
-    model.fit(X_train, y_train)
-    y_pred_log = model.predict(X_test)
-    y_pred = np.expm1(y_pred_log)  # return to original scale
-    y_test_orig = np.expm1(y_test)
+rf_tune = TuneSearchCV(
+    RandomForestRegressor(random_state=42),
+    param_distributions=rf_search_space,
+    n_trials=10,
+    scoring="r2",
+    cv=3,
+    verbose=1,
+    random_state=42,
+    n_jobs=-1
+)
 
-    r2 = r2_score(y_test, y_pred_log)
-    rmse = np.sqrt(mean_squared_error(y_test_orig, y_pred))
+# Fit both models
+xgb_tune.fit(X_train_prep, y_train)
+rf_tune.fit(X_train_prep, y_train)
 
-    results[name] = {"r2": r2, "rmse": rmse}
+# Evaluate
+xgb_preds = xgb_tune.predict(X_test_prep)
+rf_preds = rf_tune.predict(X_test_prep)
 
-    print(f"{name}:")
-    print(f"  R² Score (log space): {r2:.4f}")
-    print(f"  RMSE (original scale): {rmse:.4f}")
+xgb_r2 = r2_score(y_test, xgb_preds)
+rf_r2 = r2_score(y_test, rf_preds)
 
-    cv = cross_val_score(model, X, y, cv=5, scoring="r2")
-    print(f"  5-Fold CV R²: {cv.mean():.4f} ± {cv.std():.4f}")
-    print("-" * 30)
+print("XGBoost R2:", xgb_r2)
+print("RandomForest R2:", rf_r2)
 
-# === 7. Save best model ===
-best_model_name = max(results, key=lambda x: results[x]["r2"])
-best_model = models[best_model_name]
+# Select and save the best model
+best_model = xgb_tune.best_estimator_ if xgb_r2 > rf_r2 else rf_tune.best_estimator_
+
+final_pipeline = Pipeline([
+    ("preprocessor", preprocessor),
+    ("regressor", best_model)
+])
+
+final_pipeline.fit(X_train, y_train)
 
 with open("best_model.pkl", "wb") as f:
-    pickle.dump(best_model, f)
+    pickle.dump(final_pipeline, f)
 
-print(f"\n Best model: {best_model_name} (R² = {results[best_model_name]['r2']:.4f})")
-print(" Saved to best_model.pkl")
+print("Best model saved to best_model.pkl")
